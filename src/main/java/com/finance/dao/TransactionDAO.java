@@ -335,14 +335,14 @@ public class TransactionDAO {
      */
     public List<Map<String, Object>> getMonthlyTrend(int userId, int numberOfMonths) throws SQLException {
         String sql = "SELECT " +
-                     "  DATE_FORMAT(transaction_date, '%Y-%m') as year_month, " +
-                     "  DATE_FORMAT(transaction_date, '%b %Y') as month_label, " +
+                     "  YEAR(transaction_date) as tx_year, " +
+                     "  MONTH(transaction_date) as tx_month, " +
                      "  SUM(CASE WHEN type = 'INCOME' THEN amount ELSE 0 END) as total_income, " +
                      "  SUM(CASE WHEN type = 'EXPENSE' THEN amount ELSE 0 END) as total_expense " +
                      "FROM transactions " +
-                     "WHERE user_id = ? AND transaction_date >= DATE_SUB(CURDATE(), INTERVAL ? MONTH) " +
-                     "GROUP BY DATE_FORMAT(transaction_date, '%Y-%m'), DATE_FORMAT(transaction_date, '%b %Y') " +
-                     "ORDER BY year_month ASC";
+                     "WHERE user_id = ? " +
+                     "GROUP BY YEAR(transaction_date), MONTH(transaction_date) " +
+                     "ORDER BY tx_year ASC, tx_month ASC";
 
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -353,13 +353,19 @@ public class TransactionDAO {
             conn = DBConnection.getConnection();
             stmt = conn.prepareStatement(sql);
             stmt.setInt(1, userId);
-            stmt.setInt(2, numberOfMonths);
             rs = stmt.executeQuery();
 
             while (rs.next()) {
+                int y = rs.getInt("tx_year");
+                int m = rs.getInt("tx_month");
+                String monthName = java.time.Month.of(m).name().substring(0, 1) + 
+                                   java.time.Month.of(m).name().substring(1, 3).toLowerCase();
+                String label = monthName + " " + y;
+                String yearMonth = String.format("%04d-%02d", y, m);
+
                 Map<String, Object> row = new LinkedHashMap<>();
-                row.put("yearMonth", rs.getString("year_month"));
-                row.put("label", rs.getString("month_label"));
+                row.put("yearMonth", yearMonth);
+                row.put("label", label);
                 row.put("income", rs.getBigDecimal("total_income"));
                 row.put("expense", rs.getBigDecimal("total_expense"));
                 BigDecimal inc = rs.getBigDecimal("total_income");

@@ -29,6 +29,9 @@
                     </div>
                 </div>
                 <div class="topbar-actions">
+                    <button type="button" class="theme-toggle-btn" title="Toggle Theme" aria-label="Toggle Theme">
+                        <i class="bi bi-sun-fill"></i>
+                    </button>
                     <button class="btn btn-primary" onclick="openAddGoalModal()">
                         <i class="bi bi-plus-lg"></i> Create Goal
                     </button>

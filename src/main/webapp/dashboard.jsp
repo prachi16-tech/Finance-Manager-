@@ -28,6 +28,9 @@
                     </div>
                 </div>
                 <div class="topbar-actions">
+                    <button type="button" class="theme-toggle-btn" title="Toggle Theme" aria-label="Toggle Theme">
+                        <i class="bi bi-sun-fill"></i>
+                    </button>
                     <a href="${pageContext.request.contextPath}/transactions" class="btn btn-primary btn-sm">
                         <i class="bi bi-plus-circle-fill"></i> Add Transaction
                     </a>

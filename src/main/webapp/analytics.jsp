@@ -30,6 +30,11 @@
                         <span>Financial Analytics & Visual Trends</span>
                     </div>
                 </div>
+                <div class="topbar-actions">
+                    <button type="button" class="theme-toggle-btn" title="Toggle Theme" aria-label="Toggle Theme">
+                        <i class="bi bi-sun-fill"></i>
+                    </button>
+                </div>
             </header>
 
             <main class="content-body">

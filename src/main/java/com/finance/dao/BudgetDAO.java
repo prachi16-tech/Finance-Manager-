@@ -20,24 +20,46 @@ public class BudgetDAO {
      * Inserts or updates a budget for a given user, category, month, and year (UPSERT)
      */
     public boolean saveOrUpdate(Budget budget) throws SQLException {
-        String sql = "INSERT INTO budgets (user_id, category, amount, month, year) " +
-                     "VALUES (?, ?, ?, ?, ?) " +
-                     "ON DUPLICATE KEY UPDATE amount = VALUES(amount)";
+        String checkSql = "SELECT id FROM budgets WHERE user_id = ? AND category = ? AND month = ? AND year = ?";
+        String updateSql = "UPDATE budgets SET amount = ? WHERE id = ?";
+        String insertSql = "INSERT INTO budgets (user_id, category, amount, month, year) VALUES (?, ?, ?, ?, ?)";
+        
         Connection conn = null;
-        PreparedStatement stmt = null;
+        PreparedStatement checkStmt = null;
+        PreparedStatement updateStmt = null;
+        PreparedStatement insertStmt = null;
+        ResultSet rs = null;
 
         try {
             conn = DBConnection.getConnection();
-            stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, budget.getUserId());
-            stmt.setString(2, budget.getCategory());
-            stmt.setBigDecimal(3, budget.getAmount());
-            stmt.setInt(4, budget.getMonth());
-            stmt.setInt(5, budget.getYear());
+            checkStmt = conn.prepareStatement(checkSql);
+            checkStmt.setInt(1, budget.getUserId());
+            checkStmt.setString(2, budget.getCategory());
+            checkStmt.setInt(3, budget.getMonth());
+            checkStmt.setInt(4, budget.getYear());
+            rs = checkStmt.executeQuery();
 
-            return stmt.executeUpdate() > 0;
+            if (rs.next()) {
+                int existingId = rs.getInt("id");
+                updateStmt = conn.prepareStatement(updateSql);
+                updateStmt.setBigDecimal(1, budget.getAmount());
+                updateStmt.setInt(2, existingId);
+                return updateStmt.executeUpdate() > 0;
+            } else {
+                insertStmt = conn.prepareStatement(insertSql);
+                insertStmt.setInt(1, budget.getUserId());
+                insertStmt.setString(2, budget.getCategory());
+                insertStmt.setBigDecimal(3, budget.getAmount());
+                insertStmt.setInt(4, budget.getMonth());
+                insertStmt.setInt(5, budget.getYear());
+                return insertStmt.executeUpdate() > 0;
+            }
         } finally {
-            DBConnection.close(conn, stmt);
+            if (rs != null) try { rs.close(); } catch (SQLException ignored) {}
+            if (checkStmt != null) try { checkStmt.close(); } catch (SQLException ignored) {}
+            if (updateStmt != null) try { updateStmt.close(); } catch (SQLException ignored) {}
+            if (insertStmt != null) try { insertStmt.close(); } catch (SQLException ignored) {}
+            if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
         }
     }
 

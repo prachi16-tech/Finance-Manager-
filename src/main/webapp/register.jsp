@@ -10,7 +10,12 @@
     <div class="ambient-glow glow-1"></div>
     <div class="ambient-glow glow-2"></div>
 
-    <div class="auth-card">
+    <div class="auth-card" style="position: relative;">
+        <div style="position: absolute; top: 20px; right: 20px;">
+            <button type="button" class="theme-toggle-btn" title="Toggle Theme" aria-label="Toggle Theme" style="width: 32px; height: 32px; font-size: 1rem;">
+                <i class="bi bi-sun-fill"></i>
+            </button>
+        </div>
         <div class="auth-header">
             <div class="brand-logo" style="justify-content: center; margin-bottom: 12px;">
                 <div class="brand-icon">₹</div>
